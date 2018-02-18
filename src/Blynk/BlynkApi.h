@@ -10,6 +10,7 @@
 
 #ifndef BlynkApi_h
 #define BlynkApi_h
+#include <vector>
 
 #include <Blynk/BlynkConfig.h>
 #include <Blynk/BlynkDebug.h>
@@ -25,11 +26,15 @@
 /**
  * Represents high-level functions of Blynk
  */
-template <class Proto>
+template <class Proto, class BlynkType>
 class BlynkApi
 {
 public:
-    BlynkApi() {
+    BlynkApi<Proto,BlynkType>() {
+        for (int i = 0; i < blynkMaxPins; i++) {
+            writeHandlerLookup[i] = emptyIndex;
+            readHandlerLookup[i] = emptyIndex;
+        }
     }
 
 #ifdef DOXYGEN // These API here are only for the documentation
@@ -269,6 +274,38 @@ public:
         static_cast<Proto*>(this)->sendCmd(BLYNK_CMD_EVENT_LOG, 0, cmd.getBuffer(), cmd.getLength());
     }
 
+    WidgetReadHandler GetReadHandler(uint8_t pin)
+    {
+        if ((pin >= blynkMaxPins) ||
+            (readHandlerLookup[pin] == emptyIndex) || 
+            (readHandlerLookup[pin] >= readHandlerVector.size()) 
+            ) return (WidgetReadHandler)0;
+        return readHandlerVector[readHandlerLookup[pin]];
+    }
+
+    WidgetWriteHandler GetWriteHandler(uint8_t pin)
+    {
+        if ((pin >= blynkMaxPins) ||
+            (writeHandlerLookup[pin] == emptyIndex) || 
+            (writeHandlerLookup[pin] >= writeHandlerVector.size()) 
+            ) return (WidgetWriteHandler)0;
+        return writeHandlerVector[writeHandlerLookup[pin]];
+    }
+
+    void registerReadHandler(WidgetReadHandler h,uint8_t pin)
+    {
+        HandlerVectIndex_t sizeVal = readHandlerVector.size();
+        readHandlerVector.push_back(h);
+        readHandlerLookup[pin] = sizeVal;
+    }
+
+    void registerWriteHandler(WidgetWriteHandler h,uint8_t pin)
+    {
+        HandlerVectIndex_t sizeVal = writeHandlerVector.size();
+        writeHandlerVector.push_back(h);
+        writeHandlerLookup[pin] = sizeVal;
+    }
+
 #if defined(BLYNK_EXPERIMENTAL)
     // Attention!
     // Every function in this section may be changed, removed or renamed.
@@ -315,6 +352,17 @@ public:
 protected:
     void processCmd(const void* buff, size_t len);
     void sendInfo();
+    typedef uint8_t HandlerVectIndex_t; // set the index type for lookup in the handler vectors
+    const HandlerVectIndex_t emptyIndex = (HandlerVectIndex_t)0xffffffff; // last value is reserved for 'empty'
+    #ifdef BLYNK_USE_128_VPINS
+    static const size_t blynkMaxPins = 128;
+    #else 
+    static const size_t blynkMaxPins = 32;
+    #endif
+    HandlerVectIndex_t writeHandlerLookup[blynkMaxPins];
+    HandlerVectIndex_t readHandlerLookup[blynkMaxPins];
+    std::vector<WidgetWriteHandler> writeHandlerVector;
+    std::vector<WidgetReadHandler> readHandlerVector;
 };
 
 

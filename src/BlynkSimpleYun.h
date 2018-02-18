@@ -18,9 +18,9 @@
 typedef BlynkArduinoClient BlynkArduinoClientYun;
 
 class BlynkYun
-    : public BlynkProtocol< BlynkArduinoClientYun >
+    : public BlynkProtocol< BlynkArduinoClientYun, BlynkYun >
 {
-    typedef BlynkProtocol< BlynkArduinoClientYun > Base;
+    typedef BlynkProtocol< BlynkArduinoClientYun, BlynkYun > Base;
 public:
     BlynkYun(BlynkArduinoClientYun& transp)
         : Base(transp)
@@ -61,12 +61,21 @@ public:
         config(auth, ip, port);
         while(this->connect() != true) {}
     }
+    
+    void registerReadHandler(WidgetReadHandler h,uint8_t pin)
+    {
+        BlynkApi<BlynkProtocol<BlynkArduinoClientYun,BlynkYun>,BlynkYun>::registerReadHandler( h, pin);
+    }
+    
+    void registerWriteHandler(WidgetWriteHandler h,uint8_t pin)
+    {
+        BlynkApi<BlynkProtocol<BlynkArduinoClientYun,BlynkYun>,BlynkYun>::registerWriteHandler( h, pin);
+    }
 
 };
 
-static BridgeClient _blynkYunClient;
-static BlynkArduinoClient _blynkTransport(_blynkYunClient);
-BlynkYun Blynk(_blynkTransport);
+#define MakeBlynk(varname) BlynkYun varname(* new BlynkArduinoClient(* new BridgeClient()))
+#define BLYNKEM_TYPE	BlynkYun
 
 #include <BlynkWidgets.h>
 

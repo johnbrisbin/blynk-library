@@ -12,14 +12,15 @@
 
 #include <Blynk/BlynkWidgetBase.h>
 
+template <class BlynkType>
 class WidgetLCD
-    : public BlynkWidgetBase
+    : public BlynkWidgetBase<BlynkType>
 {
 public:
-    WidgetLCD(uint8_t vPin) : BlynkWidgetBase(vPin) {}
+    WidgetLCD(BlynkType& blinkEM,uint8_t vPin) : BlynkWidgetBase<BlynkType>(blinkEM,vPin) {}
 
     void clear() {
-        Blynk.virtualWrite(mPin, "clr");
+        BlynkWidgetBase<BlynkType>::blinkem.virtualWrite(BlynkWidgetBase<BlynkType>::mPin, "clr");
     }
 
     template<typename T>
@@ -30,7 +31,7 @@ public:
         cmd.add(x);
         cmd.add(y);
         cmd.add(str);
-        Blynk.virtualWrite(mPin, cmd);
+        BlynkWidgetBase<BlynkType>::blinkem.virtualWrite(BlynkWidgetBase<BlynkType>::mPin, cmd);
     }
 
 };

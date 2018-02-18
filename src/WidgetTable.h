@@ -13,16 +13,17 @@
 
 #include <Blynk/BlynkWidgetBase.h>
 
+template <class BlynkType>
 class WidgetTable
-    : public BlynkWidgetBase
+    : public BlynkWidgetBase<BlynkType>
 {
 public:
     typedef void (*ItemSelectChange)(int index, bool selected);
     typedef void (*ItemOrderChange)(int indexFrom, int indexTo);
 
 public:
-    WidgetTable(uint8_t vPin = -1)
-        : BlynkWidgetBase(vPin)
+    WidgetTable(BlynkType& blinkEM,uint8_t vPin = -1)
+        : BlynkWidgetBase<BlynkType>(blinkEM,vPin)
         , mOnOrderChange(NULL)
         , mOnSelectChange(NULL)
     {}
@@ -41,21 +42,21 @@ public:
     void onSelectChange(ItemSelectChange cbk) { mOnSelectChange = cbk; }
 
     void clear() {
-        Blynk.virtualWrite(mPin, "clr");
+        BlynkWidgetBase<BlynkType>::blynkEM.virtualWrite(BlynkWidgetBase<BlynkType>::mPin, "clr");
     }
 
     template <typename T1, typename T2>
     void addRow(int index, const T1& name, const T2& value) {
-        Blynk.virtualWrite(mPin, "add", index, name, value);
+        BlynkWidgetBase<BlynkType>::blynkEM.virtualWrite(BlynkWidgetBase<BlynkType>::mPin, "add", index, name, value);
     }
 
     template <typename T1, typename T2>
     void updateRow(int index, const T1& name, const T2& value) {
-        Blynk.virtualWrite(mPin, "update", index, name, value);
+        BlynkWidgetBase<BlynkType>::blynkEM.virtualWrite(BlynkWidgetBase<BlynkType>::mPin, "update", index, name, value);
     }
 
     void pickRow(int index) {
-        Blynk.virtualWrite(mPin, "pick", index);
+        BlynkWidgetBase<BlynkType>::blynkEM.virtualWrite(BlynkWidgetBase<BlynkType>::mPin, "pick", index);
     }
 
 private:

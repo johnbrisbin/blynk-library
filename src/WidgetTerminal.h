@@ -23,15 +23,16 @@
     #endif
 #endif
 
+template <class BlynkType>
 class WidgetTerminal
-    : public BlynkWidgetBase
+    : public BlynkWidgetBase<BlynkType>
 #ifdef BLYNK_USE_PRINT_CLASS
     , public Print
 #endif
 {
 public:
-    WidgetTerminal(uint8_t vPin)
-        : BlynkWidgetBase(vPin)
+    WidgetTerminal(BlynkType& blinkEM,uint8_t vPin)
+        : BlynkWidgetBase<BlynkType>(blinkEM,vPin)
         , mOutQty(0)
     {}
 
@@ -47,7 +48,7 @@ public:
 
     void flush() {
         if (mOutQty) {
-            Blynk.virtualWriteBinary(mPin, mOutBuf, mOutQty);
+            BlynkWidgetBase<BlynkType>::blinkEM.virtualWriteBinary(BlynkWidgetBase<BlynkType>::mPin, mOutBuf, mOutQty);
             mOutQty = 0;
         }
     }

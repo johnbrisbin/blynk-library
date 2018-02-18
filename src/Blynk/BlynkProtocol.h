@@ -18,11 +18,11 @@
 #include <Blynk/BlynkApi.h>
 #include <utility/BlynkUtility.h>
 
-template <class Transp>
+template <class Transp, class BlynkType >
 class BlynkProtocol
-    : public BlynkApi< BlynkProtocol<Transp> >
+    : public BlynkApi<BlynkProtocol<Transp,BlynkType>,BlynkType>
 {
-    friend class BlynkApi< BlynkProtocol<Transp> >;
+    friend class BlynkApi<BlynkProtocol<Transp,BlynkType>,BlynkType>;
 public:
     enum BlynkState {
         CONNECTING,
@@ -30,7 +30,7 @@ public:
         DISCONNECTED,
     };
 
-    BlynkProtocol(Transp& transp)
+    BlynkProtocol<Transp,BlynkType>(Transp& transp)
         : conn(transp)
         , authkey(NULL)
         , redir_serv(NULL)
@@ -135,8 +135,8 @@ protected:
     BlynkState state;
 };
 
-template <class Transp>
-bool BlynkProtocol<Transp>::run(bool avail)
+template <class Transp, class BlynkType >
+bool BlynkProtocol<Transp,BlynkType>::run(bool avail)
 {
     BLYNK_RUN_YIELD();
 
@@ -227,9 +227,9 @@ bool BlynkProtocol<Transp>::run(bool avail)
     return true;
 }
 
-template <class Transp>
+template <class Transp, class BlynkType >
 BLYNK_FORCE_INLINE
-bool BlynkProtocol<Transp>::processInput(void)
+bool BlynkProtocol<Transp,BlynkType>::processInput(void)
 {
     BlynkHeader hdr;
     const int ret = readHeader(hdr);
@@ -395,8 +395,8 @@ bool BlynkProtocol<Transp>::processInput(void)
     return true;
 }
 
-template <class Transp>
-int BlynkProtocol<Transp>::readHeader(BlynkHeader& hdr)
+template <class Transp, class BlynkType >
+int BlynkProtocol<Transp,BlynkType>::readHeader(BlynkHeader& hdr)
 {
     size_t rlen = conn.read(&hdr, sizeof(hdr));
     if (rlen == 0) {
@@ -423,8 +423,8 @@ int BlynkProtocol<Transp>::readHeader(BlynkHeader& hdr)
 #define BLYNK_SEND_CHUNK 1024 // Just a big number
 #endif
 
-template <class Transp>
-void BlynkProtocol<Transp>::sendCmd(uint8_t cmd, uint16_t id, const void* data, size_t length, const void* data2, size_t length2)
+template <class Transp, class BlynkType >
+void BlynkProtocol<Transp,BlynkType>::sendCmd(uint8_t cmd, uint16_t id, const void* data, size_t length, const void* data2, size_t length2)
 {
     if (!conn.connected() || (cmd != BLYNK_CMD_RESPONSE && cmd != BLYNK_CMD_PING && cmd != BLYNK_CMD_LOGIN && state != CONNECTED) ) {
 #ifdef BLYNK_DEBUG_ALL
@@ -534,8 +534,8 @@ void BlynkProtocol<Transp>::sendCmd(uint8_t cmd, uint16_t id, const void* data, 
 
 }
 
-template <class Transp>
-uint16_t BlynkProtocol<Transp>::getNextMsgId()
+template <class Transp, class BlynkType >
+uint16_t BlynkProtocol<Transp,BlynkType>::getNextMsgId()
 {
     if (msgIdOutOverride != 0)
         return msgIdOutOverride;

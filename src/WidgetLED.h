@@ -12,12 +12,13 @@
 
 #include <Blynk/BlynkWidgetBase.h>
 
+template <class BlynkType>
 class WidgetLED
-    : public BlynkWidgetBase
+    : public BlynkWidgetBase< BlynkType >
 {
 public:
-    WidgetLED(uint8_t vPin)
-        : BlynkWidgetBase(vPin)
+    WidgetLED(BlynkType& blinkEM,uint8_t vPin)
+        : BlynkWidgetBase<BlynkType>(blinkEM, vPin)
         , mValue(0)
     {}
 
@@ -27,7 +28,7 @@ public:
 
     void setValue(uint8_t value) {
         mValue = value;
-        Blynk.virtualWrite(mPin, value);
+        BlynkWidgetBase<BlynkType>::blinkEM.virtualWrite(BlynkWidgetBase<BlynkType>::mPin, value);
     }
 
     void on() {

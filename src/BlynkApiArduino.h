@@ -16,15 +16,15 @@
 
 #ifdef BLYNK_NO_INFO
 
-template<class Proto>
+template <class Proto, class BlynkType >
 BLYNK_FORCE_INLINE
-void BlynkApi<Proto>::sendInfo() {}
+void BlynkApi<Proto,BlynkType>::sendInfo() {}
 
 #else
 
-template<class Proto>
+template <class Proto, class BlynkType >
 BLYNK_FORCE_INLINE
-void BlynkApi<Proto>::sendInfo()
+void BlynkApi<Proto,BlynkType>::sendInfo()
 {
     static const char profile[] BLYNK_PROGMEM =
         BLYNK_PARAM_KV("ver"    , BLYNK_VERSION)
@@ -67,9 +67,9 @@ void BlynkApi<Proto>::sendInfo()
     #endif
 #endif
 
-template<class Proto>
+template <class Proto, class BlynkType >
 BLYNK_FORCE_INLINE
-void BlynkApi<Proto>::processCmd(const void* buff, size_t len)
+void BlynkApi<Proto,BlynkType>::processCmd(const void* buff, size_t len)
 {
     BlynkParam param((void*)buff, len);
     BlynkParam::iterator it = param.begin();
@@ -163,7 +163,7 @@ void BlynkApi<Proto>::processCmd(const void* buff, size_t len)
     case BLYNK_HW_VR: {
         BlynkReq req = { pin };
         WidgetReadHandler handler = GetReadHandler(pin);
-        if (handler && (handler != BlynkWidgetRead)) {
+        if (handler) {
             handler(req);
         } else {
             BlynkWidgetReadDefault(req);
@@ -175,7 +175,7 @@ void BlynkApi<Proto>::processCmd(const void* buff, size_t len)
         BlynkParam param2(start, len - (start - (char*)buff));
         BlynkReq req = { pin };
         WidgetWriteHandler handler = GetWriteHandler(pin);
-        if (handler && (handler != BlynkWidgetWrite)) {
+        if (handler) {
             handler(req, param2);
         } else {
             BlynkWidgetWriteDefault(req, param2);

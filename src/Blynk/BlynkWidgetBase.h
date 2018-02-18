@@ -12,10 +12,13 @@
 
 #include <Blynk/BlynkApi.h>
 
+template <class BlynkType>
 class BlynkWidgetBase
 {
 public:
-    BlynkWidgetBase(uint8_t vPin) : mPin(vPin) {}
+    BlynkWidgetBase(BlynkType& blinkEMIn,
+    	uint8_t vPin) : blinkEM(blinkEMIn),mPin(vPin) {}
+    	
     void setVPin(uint8_t vPin) { mPin = vPin; }
 
     void onWrite(BlynkReq BLYNK_UNUSED &request, const BlynkParam BLYNK_UNUSED &param) {
@@ -24,26 +27,17 @@ public:
 
     template<typename... Args>
     void setLabel(Args... args) {
-        Blynk.setProperty(mPin, "label", args...);
+        blinkEM.setProperty(mPin, "label", args...);
     }
 
     template<typename... Args>
     void setColor(Args... args) {
-        Blynk.setProperty(mPin, "color", args...);
-    }
-
-    template<typename... Args>
-    void setMin(Args... args) {
-        Blynk.setProperty(mPin, "min", args...);
-    }
-
-    template<typename... Args>
-    void setMax(Args... args) {
-        Blynk.setProperty(mPin, "max", args...);
+        blinkEM.setProperty(mPin, "color", args...);
     }
 
 protected:
     uint8_t mPin;
+    BlynkType& blinkEM;
 };
 
 class BlynkAttachWidgetHelper {
